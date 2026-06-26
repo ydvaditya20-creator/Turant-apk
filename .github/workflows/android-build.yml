@@ -19,7 +19,29 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # FIXED STEP: Yeh sirf basic settings banayega, aapki kisi bhi app file ko touch nahi karega
+    # JADU STEP: Yeh purane kharab manifest ko override karke bilkul shudh manifest inject karega
+    - name: Force Clean Manifest Injection
+      run: |
+        mkdir -p app/src/main
+        cat << 'EOF' > app/src/main/AndroidManifest.xml
+        <?xml version="1.0" encoding="utf-8"?>
+        <manifest xmlns:android="http://android.com">
+            <application
+                android:allowBackup="true"
+                android:label="Hello APK"
+                android:supportsRtl="true">
+                <activity
+                    android:name="com.example.hello.MainActivity"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN" />
+                        <category android:name="android.intent.category.LAUNCHER" />
+                    </intent-filter>
+                </activity>
+            </application>
+        </manifest>
+        EOF
+
     - name: Generate Core Gradle Settings
       run: |
         cat << 'EOF' > settings.gradle.kts
@@ -51,7 +73,6 @@ jobs:
     - name: Create Local Properties
       run: echo "sdk.dir=$ANDROID_HOME" > local.properties
 
-    # Wrapper Setup aur clean build execution
     - name: Run Build with Gradle Wrapper Generation
       run: |
         gradle wrapper --gradle-version 8.2
