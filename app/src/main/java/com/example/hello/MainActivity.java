@@ -1,26 +1,21 @@
-package com.example.hello;
+package com.example.myapk;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.view.Gravity;
-import android.graphics.Color;
+import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     @Override
+    protected void java.lang.Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState) ;
-
-        // Ek simple text view bana rahe hain bina kisi XML file ke
-        TextView textView = new TextView(this);
-        textView.setText("Hello from GitHub Actions!");
-        textView.setTextSize(24);
-        textView.setTextColor(Color.WHITE);
-        textView.setGravity(Gravity.CENTER);
+        super.onCreate(savedInstanceState);
         
-        // Full screen setup
-        textView.setBackgroundColor(Color.BLACK);
-
+        // Bina XML layout file ke screen par text dikhane ke liye
+        TextView textView = new TextView(this);
+        textView.setText("Hello World! GitHub Actions se bana APK successfully chal raha hai.");
+        textView.setTextSize(20);
+        textView.setPadding(50, 50, 50, 50);
+        
         setContentView(textView);
     }
 }
