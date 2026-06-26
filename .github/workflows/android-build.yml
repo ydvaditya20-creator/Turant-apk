@@ -19,8 +19,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # FIXED JADU STEP: Yeh ab Google aur Maven repositories ke sath settings generate karega
-    - name: Generate Complete Gradle Repositories Config
+    # FIXED STEP: Yeh sirf basic settings banayega, aapki kisi bhi app file ko touch nahi karega
+    - name: Generate Core Gradle Settings
       run: |
         cat << 'EOF' > settings.gradle.kts
         pluginManagement {
@@ -48,11 +48,15 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    - name: Create Local Properties
+      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+    # Wrapper Setup aur clean build execution
     - name: Run Build with Gradle Wrapper Generation
       run: |
-        gradle wrapper
+        gradle wrapper --gradle-version 8.2
         chmod +x gradlew
-        ./gradlew assembleDebug
+        ./gradlew clean assembleDebug --stacktrace
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
