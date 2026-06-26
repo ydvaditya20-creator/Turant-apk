@@ -1,5 +1,4 @@
 # .github/workflows/build.yml
-#ghg
 name: Android APK Build
 
 on:
@@ -21,7 +20,11 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: 'gradle'
+
+    # BACKGROUND STEP: Ye missing gradle-wrapper.jar aur baki files khud bana dega
+    - name: Download and Setup Gradle Wrapper
+      run: |
+        gradle wrapper --gradle-version 8.2
 
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
