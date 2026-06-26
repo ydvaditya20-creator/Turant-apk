@@ -1,11 +1,11 @@
-# .github/workflows/build.yml
 name: Android APK Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Allows manually running the action from the GitHub UI
 
 jobs:
   build:
@@ -20,72 +20,20 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: gradle
 
-    # BACKGROUND STEP: Ye missing gradle-wrapper.jar aur baki files khud bana dega
-    - name: Download and Setup Gradle Wrapper
-      run: |
-        gradle wrapper --gradle-version 8.2
-        
-    - name: Create gradle.properties and Enable AndroidX
-      run: |
-        echo "android.useAndroidX=true" > gradle.properties
-        echo "org.gradle.configuration-cache=false" >> gradle.properties
+    - name: Setup Gradle Wrapper Files
+      run: gradle wrapper
 
-    - name: Fix and Overwrite AndroidManifest.xml
-      run: |
-        mkdir -p app/src/main
-        cat << 'EOF' > app/src/main/AndroidManifest.xml
-        <?xml version="1.0" encoding="utf-8"?>
-        <manifest xmlns:android="http://android.com"
-            package="com.example.myapk">
 
-            <application
-                android:allowBackup="true"
-                android:label="My Simple APK"
-                android:supportsRtl="true"
-                android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-                
-                <activity
-                    android:name="com.example.myapk.MainActivity"
-                    android:exported="true">
-                    <intent-filter>
-                        <action android:name="android.intent.action.MAIN" />
-                        <category android:name="android.intent.category.LAUNCHER" />
-                    </intent-filter>
-                </activity>
-            </application>
 
-        </manifest>
-        EOF
-
-    # BACKGROUND STEP 4: Agar MainActivity.java me koi override typo ho to use bhi fix karega
-    - name: Fix MainActivity.java Typo
-      run: |
-        mkdir -p app/src/main/java/com/example/myapk
-        cat << 'EOF' > app/src/main/java/com/example/myapk/MainActivity.java
-        package com.example.myapk;
-
-        import android.os.Bundle;
-        import android.widget.TextView;
-        import androidx.appcompat.app.AppCompatActivity;
-
-        public class MainActivity extends AppCompatActivity {
-            @Override
-            protected void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                
-                TextView textView = new TextView(this);
-                textView.setText("Hello World! GitHub Actions se bana APK successfully chal raha hai.");
-                textView.setTextSize(20);
-                textView.setPadding(50, 50, 50, 50);
-                
-                setContentView(textView);
-            }
-        }
-        EOF
-        
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
+      continue-on-error: true
+    
+    - name: Generate Temporary Debug Keystore
+      run: keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug
@@ -93,5 +41,5 @@ jobs:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: debug-apk
+        name: Hello-World-APK
         path: app/build/outputs/apk/debug/app-debug.apk
